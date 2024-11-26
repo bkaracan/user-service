@@ -14,7 +14,7 @@ public class ApplicationConfig {
         return args -> {
             roleService.saveRole(new RoleDto(null, "USER"));
             roleService.saveRole(new RoleDto(null, "ADMIN"));
-            System.out.println("Default roles added to the database.");
+            roleService.saveRole(new RoleDto(null, "MANAGER"));
         };
     }
 }

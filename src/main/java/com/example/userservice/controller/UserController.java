@@ -3,36 +3,44 @@ package com.example.userservice.controller;
 import com.example.userservice.dto.UserDto;
 import com.example.userservice.service.UserService;
 import com.example.userservice.utils.ResponsePayload;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @PostMapping
-    public ResponsePayload<UserDto> createUser(@RequestBody UserDto userDto) {
-        return userService.saveUser(userDto);
-    }
+  // Kullanıcı oluşturma (Sadece ADMIN erişebilir)
+  @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponsePayload<UserDto> createUser(@RequestBody UserDto userDto) {
+    return userService.saveUser(userDto);
+  }
 
-    @GetMapping("/{email}")
-    public ResponsePayload<UserDto> getUserByEmail(@PathVariable String email) {
-        return userService.findByEmail(email);
-    }
+  // Email'e göre kullanıcı getir (Sadece USER ve ADMIN erişebilir)
+  @GetMapping("/getUserByEmail")
+  @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+  public ResponsePayload<UserDto> getUserByEmail(@RequestParam String email) {
+    return userService.findByEmail(email);
+  }
 
-    @GetMapping
-    public ResponsePayload<List<UserDto>> getAllUsers() {
-        return userService.getAllUsers();
-    }
+  // Tüm kullanıcıları getir (Sadece ADMIN erişebilir)
+  @GetMapping
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponsePayload<List<UserDto>> getAllUsers() {
+    return userService.getAllUsers();
+  }
 
-    @DeleteMapping("/{id}")
-    public ResponsePayload<?> deleteUser(@PathVariable Long id) {
-        return userService.deleteUser(id);
-    }
+  // Kullanıcıyı sil (Sadece ADMIN erişebilir)
+  @DeleteMapping("/delete")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponsePayload<?> deleteUser(@RequestParam Long id) {
+    return userService.deleteUser(id);
+  }
 }
