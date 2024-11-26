@@ -3,15 +3,42 @@ spring:
     url: jdbc:postgresql://localhost:5432/user_service_db
     username: user_service
     password: password
-  security:
-   user:
-    name: admin
-    password: admin
-   default-username-password: disable
-
   jpa:
     hibernate:
       ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: user-service-client
+            client-secret: DG16UMac3u9ddJRUAnG2d9LeCGfrLbxv # Keycloak'taki Client Secret
+            scope: openid
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8081/realms/user-service-realm
+
+keycloak:
+  realm: user-service-realm
+  auth-server-url: http://localhost:8081/realms/user-service-realm
+  resource: user-service-client
+  credentials:
+    secret: DG16UMac3u9ddJRUAnG2d9LeCGfrLbxv
+  use-resource-role-mappings: true
+  principal-attribute: preferred_username
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        security: DEBUG
